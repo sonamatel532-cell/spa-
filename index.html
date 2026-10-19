@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#123d35">
+<title>Spa Booking | Secure Payment</title>
+<style>
+:root{--green:#123d35;--mint:#dff5e9;--gold:#d7b46a;--ink:#172522;--muted:#63716d;--paper:#fff;--line:#dfe8e3}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f3f7f4;color:var(--ink)}
+header{background:linear-gradient(135deg,#123d35,#216e5d);color:white;padding:28px 18px 34px;text-align:center}
+.brand{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#d7e9df;font-weight:700}
+h1{font-size:clamp(28px,5vw,42px);margin:9px 0 8px;line-height:1.1}header p{margin:0;color:#e4f0e9}
+.wrap{max-width:920px;margin:-15px auto 40px;padding:0 14px;position:relative}
+.card{background:white;border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 12px 35px #153f3010}
+h2{font-size:20px;margin:0 0 16px}.sub{font-size:14px;color:var(--muted);line-height:1.5}
+.rates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rate{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;gap:10px;align-items:center;cursor:pointer}
+.rate:has(input:checked){border-color:var(--green);background:#eff9f3;box-shadow:inset 0 0 0 1px var(--green)}
+.rate input{accent-color:var(--green)}.rate strong{display:block}.price{margin-left:auto;font-size:18px;font-weight:800;white-space:nowrap}
+label.field{display:block;font-size:13px;font-weight:700;margin:13px 0 6px}
+input[type=text],input[type=tel],input[type=date],select,textarea{width:100%;border:1px solid #cfdcd5;border-radius:11px;padding:12px 13px;font:inherit;background:white;color:var(--ink)}
+.payoptions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.payopt{border:1px solid var(--line);padding:13px;border-radius:12px;display:flex;gap:8px;align-items:flex-start}.payopt input{accent-color:var(--green);margin-top:4px}
+.total{background:#f0f7f2;border-radius:14px;padding:15px;display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:14px}.total strong{font-size:25px;color:var(--green)}
+.qr{display:block;width:min(100%,390px);margin:0 auto;border:1px solid #e8ece9;border-radius:12px}
+.upi{background:#f6f8f7;border-radius:10px;padding:12px;text-align:center;overflow-wrap:anywhere;font-weight:700;color:#184fbd;margin:12px 0}
+.btn{border:0;border-radius:12px;padding:14px 18px;font:inherit;font-weight:800;cursor:pointer;text-align:center;display:block;width:100%;text-decoration:none}
+.primary{background:var(--green);color:white}.secondary{background:#edf5f0;color:var(--green);border:1px solid #cddfd4;margin-top:10px}
+.filebox{border:1px dashed #aabdb2;padding:14px;border-radius:12px;background:#fafcfb}.filebox input{max-width:100%}
+#preview{max-width:100%;max-height:280px;display:none;margin:12px auto 0;border-radius:10px}
+.note{font-size:12px;color:var(--muted);line-height:1.55;margin-top:12px}.status{font-size:13px;margin-top:10px;color:var(--green);font-weight:600}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:0 18px 28px}
+@media(max-width:560px){.rates,.payoptions{grid-template-columns:1fr}.card{padding:17px}.rate{padding:12px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Private • Professional • Mobile-friendly</div>
+  <h1>Spa Booking</h1>
+  <p>Choose a service, pay securely using your UPI app, and submit your booking details.</p>
+</header>
+<main class="wrap">
+<form id="bookingForm">
+  <section class="card">
+    <h2>1. Choose your service</h2>
+    <div class="rates">
+      <label class="rate"><input type="radio" name="service" value="1 Hour" data-price="2000" checked><span><strong>1 Hour</strong><span class="sub">Spa service</span></span><span class="price">₹2,000</span></label>
+      <label class="rate"><input type="radio" name="service" value="2 Hours" data-price="3000"><span><strong>2 Hours</strong><span class="sub">Spa service</span></span><span class="price">₹3,000</span></label>
+      <label class="rate"><input type="radio" name="service" value="3 Hours" data-price="4000"><span><strong>3 Hours</strong><span class="sub">Spa service</span></span><span class="price">₹4,000</span></label>
+      <label class="rate"><input type="radio" name="service" value="12 Hours" data-price="6000"><span><strong>12 Hours</strong><span class="sub">Spa service</span></span><span class="price">₹6,000</span></label>
+    </div>
+  </section>
+  <section class="card">
+    <h2>2. Your booking details</h2>
+    <label class="field" for="customer">Full name</label><input id="customer" type="text" required maxlength="80" autocomplete="name" placeholder="Enter your full name">
+    <label class="field" for="phone">Mobile number</label><input id="phone" type="tel" required inputmode="tel" pattern="[0-9 +()-]{8,18}" maxlength="18" autocomplete="tel" placeholder="Enter contact number">
+    <label class="field" for="date">Preferred date</label><input id="date" type="date" required>
+    <label class="field" for="time">Preferred time</label><input id="time" type="text" maxlength="40" placeholder="e.g. 6:00 PM" required>
+    <label class="field" for="notes">Extra details (optional)</label><textarea id="notes" rows="2" maxlength="300" placeholder="Any request you want to share"></textarea>
+  </section>
+  <section class="card">
+    <h2>3. Select payment amount</h2>
+    <div class="payoptions">
+      <label class="payopt"><input type="radio" name="payment" value="booking" checked><span><strong>Booking only — ₹500</strong><br><span class="sub">Pay ₹500 to request a booking. Remaining amount is due as agreed with the spa.</span></span></label>
+      <label class="payopt"><input type="radio" name="payment" value="full"><span><strong>Full payment</strong><br><span class="sub">Pay the full selected service price.</span></span></label>
+    </div>
+    <div class="total"><span><span class="sub">Amount to pay</span><br><strong id="amount">₹500</strong></span><span class="sub" id="serviceTotal">Service total: ₹2,000</span></div>
+  </section>
+  <section class="card">
+    <h2>4. Pay with BharatPe UPI</h2>
+    <p class="sub" style="text-align:center">This QR code updates automatically when you change the payment amount above.</p>
+    <div id="dynamicQr" style="width:min(100%,330px);min-height:250px;margin:14px auto;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #e8ece9;border-radius:12px;padding:14px" aria-label="Dynamic UPI QR code">
+      <img class="qr" src="bharatpe-qr.jpg" alt="BharatPe UPI QR code fallback">
+    </div>
+    <div class="upi">BHARATPE2R0A008R5032718@unitype</div>
+    <a class="btn primary" id="payButton" href="upi://pay?pa=BHARATPE2R0A008R5032718%40unitype&amp;pn=HARISH%20BAMANIYA&amp;am=500.00&amp;cu=INR&amp;tn=Spa%20booking" aria-label="Open available UPI payment app">Pay ₹500 using UPI</a>
+    <div class="payoptions" style="margin-top:10px">
+      <a class="btn secondary" id="gpayButton" href="#" style="margin:0">Open Google Pay</a>
+      <a class="btn secondary" id="paytmButton" href="#" style="margin:0">Open Paytm</a>
+    </div>
+    <a class="btn secondary" id="phonepeButton" href="#" style="margin-top:10px">Open PhonePe</a>
+    <p class="note">The QR code and payment links use the selected amount. On supported phones, choose Google Pay, Paytm, PhonePe, or another UPI app. App-specific links may not work on every phone; if one fails, use the main UPI button or scan the QR code. Always check the payee name and amount inside the payment app before approving.</p>
+  </section>
+  <section class="card">
+    <h2>5. Upload payment screenshot & submit</h2>
+    <div class="filebox">
+      <label class="field" for="receipt">Payment screenshot (image)</label>
+      <input id="receipt" type="file" accept="image/*" required>
+      <img id="preview" alt="Payment screenshot preview">
+    </div>
+    <p class="note">After you submit, Telegram opens the booking bot. Please send the prepared booking text and attach the payment screenshot in Telegram. This website does not verify payments automatically.</p>
+    <button class="btn primary" type="submit">Submit booking on Telegram</button>
+    <button class="btn secondary" type="button" id="copyButton">Copy booking details</button>
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+  </section>
+</form>
+</main>
+<footer>Payment is processed by your chosen UPI app. Never share your UPI PIN or OTP with anyone.</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<script>
+const UPI_ID = "BHARATPE2R0A008R5032718@unitype";
+const PAYEE = "HARISH BAMANIYA";
+const TELEGRAM_BOT = "https://t.me/Bookingbot";
+const form = document.getElementById("bookingForm");
+const amountEl = document.getElementById("amount");
+const serviceTotalEl = document.getElementById("serviceTotal");
+const payButton = document.getElementById("payButton");
+const gpayButton = document.getElementById("gpayButton");
+const paytmButton = document.getElementById("paytmButton");
+const phonepeButton = document.getElementById("phonepeButton");
+const dynamicQr = document.getElementById("dynamicQr");
+const statusEl = document.getElementById("status");
+const receipt = document.getElementById("receipt");
+const preview = document.getElementById("preview");
+const today = new Date();
+document.getElementById("date").min = new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);
+function selectedService(){return document.querySelector('input[name="service"]:checked')}
+function payable(){return document.querySelector('input[name="payment"]:checked').value === "booking" ? 500 : Number(selectedService().dataset.price)}
+function rupees(n){return "₹"+Number(n).toLocaleString("en-IN")}
+function refresh(){
+ const total=Number(selectedService().dataset.price), due=payable();
+ amountEl.textContent=rupees(due); serviceTotalEl.textContent="Service total: "+rupees(total);
+ payButton.textContent="Pay "+rupees(due)+" using UPI";
+ const params=new URLSearchParams({pa:UPI_ID,pn:PAYEE,am:due.toFixed(2),cu:"INR",tn:"Spa booking"});
+ const upiUrl="upi://pay?"+params.toString();
+ payButton.href=upiUrl;
+ // UPI app-specific links are best-effort; the generic UPI intent remains the fallback.
+ const encodedParams=params.toString();
+ gpayButton.href="tez://upi/pay?"+encodedParams;
+ paytmButton.href="paytmmp://pay?"+encodedParams;
+ phonepeButton.href="phonepe://pay?"+encodedParams;
+ // Create a dynamic QR containing the same UPI ID and exact amount as the selected option.
+ const qrUrl="upi://pay?"+params.toString();
+ dynamicQr.innerHTML="";
+ if (window.QRCode) {
+   new QRCode(dynamicQr,{text:qrUrl,width:280,height:280,colorDark:"#111111",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+ } else {
+   const fallback=document.createElement("img");
+   fallback.className="qr"; fallback.src="bharatpe-qr.jpg";
+   fallback.alt="BharatPe QR fallback. If the dynamic QR does not load, use the UPI payment button.";
+   dynamicQr.appendChild(fallback);
+   const msg=document.createElement("p");
+   msg.className="note"; msg.textContent="Dynamic QR library did not load. Use the payment button below; it includes the selected amount.";
+   dynamicQr.appendChild(msg);
+ }
+}
+function details(){
+ const service=selectedService(), total=Number(service.dataset.price), due=payable();
+ return [
+ "SPA BOOKING REQUEST",
+ "Name: "+document.getElementById("customer").value.trim(),
+ "Mobile: "+document.getElementById("phone").value.trim(),
+ "Service: "+service.value,
+ "Service price: "+rupees(total),
+ "Payment selected: "+(due===500?"Booking only":"Full payment"),
+ "Amount paid/selected: "+rupees(due),
+ "Date: "+document.getElementById("date").value,
+ "Preferred time: "+document.getElementById("time").value.trim(),
+ "Extra details: "+(document.getElementById("notes").value.trim()||"None"),
+ "UPI payee: "+PAYEE,
+ "UPI ID: "+UPI_ID,
+ "Payment screenshot: I will attach it in Telegram",
+ "Please confirm availability and payment after checking."
+ ].join("\n");
+}
+document.querySelectorAll('input[name="service"],input[name="payment"]').forEach(el=>el.addEventListener("change",refresh));
+receipt.addEventListener("change",()=>{
+ const f=receipt.files && receipt.files[0];
+ if(!f){preview.style.display="none";return}
+ if(!f.type.startsWith("image/")){receipt.value="";statusEl.textContent="Please select an image screenshot.";return}
+ if(f.size>8*1024*1024){receipt.value="";preview.style.display="none";statusEl.textContent="Screenshot must be under 8 MB.";return}
+ preview.src=URL.createObjectURL(f);preview.style.display="block";statusEl.textContent="Screenshot selected. Remember to attach it in Telegram.";
+});
+document.getElementById("copyButton").addEventListener("click",async()=>{
+ if(!form.reportValidity()) return;
+ const text=details();
+ try{await navigator.clipboard.writeText(text);statusEl.textContent="Booking details copied. Open Telegram and paste them into @Bookingbot."}
+ catch(e){const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();statusEl.textContent="Booking details copied. Paste them into Telegram."}
+});
+form.addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(!form.reportValidity())return;
+ const f=receipt.files && receipt.files[0];
+ if(!f){statusEl.textContent="Please choose your payment screenshot first.";return}
+ if(f.size>8*1024*1024){statusEl.textContent="Screenshot must be under 8 MB.";return}
+ const text=details();
+ try{await navigator.clipboard.writeText(text);statusEl.textContent="Details copied. Telegram will open; paste the text and attach your screenshot."}
+ catch(err){statusEl.textContent="Telegram will open. Copy the details shown below and attach your screenshot."}
+ window.open(TELEGRAM_BOT,"_blank","noopener,noreferrer");
+});
+refresh();
+window.addEventListener("load", refresh);
+</script>
+</body>
+</html>
